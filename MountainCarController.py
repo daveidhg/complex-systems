@@ -3,25 +3,30 @@ import gymnasium as gym
 from pylab import *
 import random
 
+def scale_number(unscaled, to_min, to_max, from_min, from_max):
+    return (to_max - to_min) * (unscaled - from_min) / (from_max - from_min) + to_min
+
 def initialize():
     global env, config # list global variables
     env = gym.make(id='MountainCar-v0', render_mode="human")
     state, _ = env.reset()
     position, velocity = state
-    config = [[position, velocity, 1]] # Change to the actual values we are supposed to use
+    config = [[position, velocity, 1]] 
     
 def observe():
     global observation, config # list global variables
     cla() # to clear the visualization space
-    imshow(config, vmin = 0, vmax = 1, cmap = cm.Spectral)
+    imshow(config, vmin = 0, vmax = 2, cmap = cm.Spectral)
     # visualize system states
 
 def update():
     global env, observation, config
     controller_output = random.randint(0, 2)
     observation, reward, terminated, truncated, info = env.step(controller_output)
-    print(observation)
-    config = [[observation[0], observation[1], controller_output]] # Change to the actual values we are supposed to use
+    scaled_position = scale_number(observation[0], 0, 2, -1.2, 0.6,)
+    scaled_velocity = scale_number(observation[1], 0, 2, -0.07, 0.07)
+    print(observation, [scaled_position, scaled_velocity])
+    config = [[scaled_position, scaled_velocity, controller_output]] 
     # update system states for one discrete time step
 
 pycxsimulator.GUI().start(func=[initialize, observe, update])
