@@ -2,8 +2,11 @@ import pycxsimulator
 import gymnasium as gym
 from pylab import *
 
-lookup_list = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
+lookup_list = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
 render_mode = 'human'
+truncated = False
+terminated = False
 
 def wrapping_slice(lst, *args):
     return [lst[i % len(lst)] for i in range(*args)]
@@ -27,10 +30,12 @@ def observation_to_binary_list(observation):
     return list(map(int, bin_pos + bin_vel))
 
 def initialize():
-    global env, config, iter_count # list global variables
+    global env, config, iter_count, truncated, terminated # list global variables
     iter_count = 0
     env = gym.make(id='MountainCar-v0', render_mode=render_mode)
     state, _ = env.reset()
+    truncated = False
+    terminated = False
     config = [observation_to_binary_list(state)] 
     
 def observe():
@@ -40,7 +45,7 @@ def observe():
     # visualize system states
 
 def update():
-    global env, config, iter_count
+    global env, config, iter_count, terminated, truncated, observation
 
     # We take 5 iterations to let the algorithm get initialized before making a move.
     # To use the observations, we represent it in two 7 bit values for position and velocity.
@@ -49,7 +54,6 @@ def update():
         controller_output = 0 if sample < 0.45 else 2 if sample > 0.55 else 1
         observation, reward, terminated, truncated, info = env.step(controller_output)
         config = [observation_to_binary_list(observation)]
-        print(len(config[0]))
     last_update = config[-1]
     this_update = []
 
@@ -57,9 +61,7 @@ def update():
     # what value from the lookup string we should use to update the current element.
     for i in range(len(last_update)):
         this_update.append(lookup_list[bin_list_to_int(wrapping_slice(last_update, i - 2, i + 3))])
-    print(this_update)
     config.append(this_update)
-    print(lookup_list)
     iter_count += 1
     # update system states for one discrete time step
 
