@@ -2,7 +2,8 @@ import pycxsimulator
 import gymnasium as gym
 from pylab import *
 
-lookup_string = '10101010101010101010101010101010'
+lookup_list = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
+render_mode = 'human'
 
 def wrapping_slice(lst, *args):
     return [lst[i % len(lst)] for i in range(*args)]
@@ -28,7 +29,7 @@ def observation_to_binary_list(observation):
 def initialize():
     global env, config, iter_count # list global variables
     iter_count = 0
-    env = gym.make(id='MountainCar-v0', render_mode="human")
+    env = gym.make(id='MountainCar-v0', render_mode=render_mode)
     state, _ = env.reset()
     config = [observation_to_binary_list(state)] 
     
@@ -55,9 +56,10 @@ def update():
     # We use the 4 closest neighbors of an observation to determine 
     # what value from the lookup string we should use to update the current element.
     for i in range(len(last_update)):
-        this_update.append(int(lookup_string[bin_list_to_int(wrapping_slice(last_update, i - 2, i + 3))]))
+        this_update.append(lookup_list[bin_list_to_int(wrapping_slice(last_update, i - 2, i + 3))])
     print(this_update)
     config.append(this_update)
+    print(lookup_list)
     iter_count += 1
     # update system states for one discrete time step
 
