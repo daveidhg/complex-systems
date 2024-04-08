@@ -49,7 +49,7 @@ def update():
 
     # We take 5 iterations to let the algorithm get initialized before making a move.
     # To use the observations, we represent it in two 7 bit values for position and velocity.
-    if iter_count % 5 == 0:
+    if iter_count % 5 == 0 and iter_count != 0:
         sample = mean(config[-1][5:9])
         controller_output = 0 if sample < 0.45 else 2 if sample > 0.55 else 1
         observation, reward, terminated, truncated, info = env.step(controller_output)

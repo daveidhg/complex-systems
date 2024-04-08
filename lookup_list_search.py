@@ -2,12 +2,13 @@ import random
 import MountainCarController as mc
 
 # TODO: implement 4 random parents and use a bigger population for the testing
-# parents_list = [[random.choice([0, 1]) for _ in range(32)] for _ in range(4)]
-parent_list = [random.choice([0, 1]) for _ in range(32)]
+parents_list = [[random.choice([0, 1]) for _ in range(32)] for _ in range(4)]
+
 
 mc.render_mode = None
 
 best_velocity = 0
+best_position = 0
 best_list = []
 flip_probability = 0.1
 
@@ -19,6 +20,10 @@ def random_flip(lookup_list):
         else:
             new_list.append(i)
     return new_list
+
+def calculate_pos_vel_score(position, velocity):
+    position += 0.5  # Move the bottom position to be x-coord 0.
+    
 
 for _ in range(50):
     new_lists = [random_flip(parent_list) for _ in range(4)]
