@@ -8,12 +8,15 @@ class Individual:
         self.steps = 200
         self.velocity = velocity if velocity is not None else 0
         self.position = position if position is not None else -0.5
-        self.evaluation = self.position/4 + self.velocity*4 + 200 * 2.71828**-0.03 * self.steps
+        self.evaluation = 0
     
     def mutate(self, mutation_rate):
         for i in range(len(self.bitstring)):
             if random.random() < mutation_rate:
                 self.bitstring[i] = 1 if self.bitstring[i] == 0 else 0
+    
+    def eval(self):
+        self.evaluation = self.position + self.velocity*4 + 200 * 2.71828**(-0.03 * self.steps)
 
 # Running the mc on the individual, setting the amount of steps it took to reach the goal
 # 200 steps if truncated (stopped), less if terminated (finished)
@@ -43,6 +46,7 @@ def evaluate(individual):
     individual.steps = mc.iter_count // 5
     individual.velocity = best_velocity
     individual.position = best_position
+    individual.eval()
 
     # print("Steps: ", (mc.iter_count // 5)+1, " Finished? ", mc.terminated, "Velocity: ", round(best_velocity, 4), " Position: ", round(best_position,4))
 
@@ -69,10 +73,10 @@ def crossover(parent1, parent2):
 
 population_history = []
 def main():
-    population_size = 40
-    generation_count = 20
+    population_size = 75
+    generation_count = 50
     mutation_rate = 0.1
-    elite_size = int(0.5 * population_size)
+    elite_size = int(0.7 * population_size)
 
     population = [Individual() for _ in range(population_size)]
 
@@ -95,10 +99,17 @@ def main():
             next_generation.extend([offspring1, offspring2])
     
         population = next_generation
+    
+    else:
+        for individual in population:
+            evaluate(individual)
 
-    best_individual = min(population, key=lambda individual: individual.evaluation)
+    best_individual = max(population, key=lambda individual: individual.evaluation)
     print(best_individual.bitstring)
     print(best_individual.steps)
+    print(best_individual.velocity)
+    print(best_individual.position)
+    print(best_individual.evaluation)
 
     for i in range(0, int(len(population_history)/10)):
         print("Generation ", i*10, " to ", i*10+10)
