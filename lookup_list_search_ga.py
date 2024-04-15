@@ -8,6 +8,7 @@ class Individual:
         self.steps = 200
         self.velocity = velocity if velocity is not None else 0
         self.position = position if position is not None else -0.5
+        self.evaluation = self.position/4 + self.velocity*4 + 200 * 2.71828**-0.03 * self.steps
     
     def mutate(self, mutation_rate):
         for i in range(len(self.bitstring)):
@@ -29,7 +30,7 @@ def evaluate(individual):
     mc.initialize()
     best_velocity = 0
     best_position = -0.5
-    while not any([mc.truncated, mc.terminated]):
+    while not any([mc.iter_count > 1000*5, mc.terminated]):
         mc.update()
 
         observation = mc.observation[0]+0.5, mc.observation[1]
@@ -49,9 +50,12 @@ def evaluate(individual):
     if(individual.steps < best_individual_found.steps):
         best_individual_found = individual
 
+    if(individual.steps < 199):
+        print("Found solution")
+
 # Selection of the mating pool, based on their fitness.
 def selection(population, elite_size):
-    sorted_population = sorted(population, key=lambda individual: individual.position/4 + individual.velocity*4 + 200 * 2.71828**-0.03 * individual.steps)
+    sorted_population = sorted(population, key=lambda individual: individual.evaluation)
     selected_individuals = sorted_population[:elite_size]
     return selected_individuals
 
@@ -61,14 +65,14 @@ def crossover(parent1, parent2):
     crossover_point = int(np.clip(round(normal_num), 1, len(parent1.bitstring) - 2))
     offspring1_bitstring = parent1.bitstring[:crossover_point] + parent2.bitstring[crossover_point:]
     offspring2_bitstring = parent2.bitstring[:crossover_point] + parent1.bitstring[crossover_point:]
-    return Individual(offspring1_bitstring), Individual(offspring2_bitstring)
+    return Individual(bitstring=offspring1_bitstring), Individual(bitstring=offspring2_bitstring)
 
 population_history = []
 def main():
-    population_size = 20
-    generation_count = 10
-    mutation_rate = 0.00
-    elite_size = int(0.2 * population_size)
+    population_size = 40
+    generation_count = 20
+    mutation_rate = 0.1
+    elite_size = int(0.5 * population_size)
 
     population = [Individual() for _ in range(population_size)]
 
@@ -92,7 +96,7 @@ def main():
     
         population = next_generation
 
-    best_individual = min(population, key=lambda individual: individual.steps)
+    best_individual = min(population, key=lambda individual: individual.evaluation)
     print(best_individual.bitstring)
     print(best_individual.steps)
 

@@ -2,7 +2,7 @@ import pycxsimulator
 import gymnasium as gym
 from pylab import *
 
-lookup_list = [1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0]
+lookup_list = [1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
 
 render_mode = 'human'
 truncated = False
@@ -30,13 +30,13 @@ def observation_to_binary_list(observation):
     return list(map(int, bin_pos + bin_vel))
 
 def initialize():
-    global env, config, iter_count, truncated, terminated # list global variables
+    global env, config, iter_count, truncated, terminated, observation # list global variables
     iter_count = 0
     env = gym.make(id='MountainCar-v0', render_mode=render_mode)
-    state, _ = env.reset()
+    observation, _ = env.reset()
     truncated = False
     terminated = False
-    config = [observation_to_binary_list(state)] 
+    config = [observation_to_binary_list(observation)] 
     
 def observe():
     global config # list global variables
