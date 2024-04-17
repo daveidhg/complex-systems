@@ -50,7 +50,6 @@ def evaluate(individual):
 
     # print("Steps: ", (mc.iter_count // 5)+1, " Finished? ", mc.terminated, "Velocity: ", round(best_velocity, 4), " Position: ", round(best_position,4))
 
-
     if(individual.steps < best_individual_found.steps):
         best_individual_found = individual
 
@@ -59,8 +58,25 @@ def evaluate(individual):
 
 # Selection of the mating pool, based on their fitness.
 def selection(population, elite_size):
-    sorted_population = sorted(population, key=lambda individual: individual.evaluation)
-    selected_individuals = sorted_population[:elite_size]
+    total_fitness = sum([individual.evaluation for individual in population])
+
+    random_number = random.uniform(0, total_fitness)
+
+    running_total = 0
+    selected_individuals = []
+
+    while len(selected_individuals) < len(population)*elite_size:
+        for individual in population:
+            running_total += individual.evaluation
+            if running_total > random_number:
+                selected_individuals.append(individual)
+
+                total_fitness -= individual.evaluation
+                random_number = random.uniform(0, total_fitness)
+
+                if len(selected_individuals) >= len(population)*elite_size:
+                    break
+
     return selected_individuals
 
 def crossover(parent1, parent2):
@@ -73,7 +89,7 @@ def crossover(parent1, parent2):
 
 population_history = []
 def main():
-    population_size = 75
+    population_size = 150
     generation_count = 50
     mutation_rate = 0.1
     elite_size = int(0.7 * population_size)
