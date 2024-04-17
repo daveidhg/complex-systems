@@ -87,10 +87,13 @@ def crossover(parent1, parent2):
     offspring2_bitstring = parent2.bitstring[:crossover_point] + parent1.bitstring[crossover_point:]
     return Individual(bitstring=offspring1_bitstring), Individual(bitstring=offspring2_bitstring)
 
+def clone(parent):
+    return Individual(bitstring=parent.bitstring), Individual(bitstring=parent.bitstring)
+
 population_history = []
 def main():
-    population_size = 150
-    generation_count = 50
+    population_size = 200
+    generation_count = 200
     mutation_rate = 0.1
     elite_size = int(0.7 * population_size)
 
@@ -108,8 +111,8 @@ def main():
         
         next_generation = []
         while len(next_generation) < population_size:
-            parent1, parent2 = random.sample(mating_pool, 2)
-            offspring1, offspring2 = crossover(parent1, parent2)
+            parent = random.sample(mating_pool, 1)[0]
+            offspring1, offspring2 = clone(parent)
             offspring1.mutate(mutation_rate)
             offspring2.mutate(mutation_rate)
             next_generation.extend([offspring1, offspring2])
