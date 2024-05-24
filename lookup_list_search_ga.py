@@ -7,7 +7,7 @@ class Individual:
         self.bitstring = bitstring if bitstring is not None else [random.choice([0, 1]) for _ in range(32)] 
         self.steps = 200
         self.velocity = velocity if velocity is not None else 0
-        self.position = position if position is not None else -0.5
+        self.position = position if position is not None else -0.1
         self.evaluation = 0
     
     def mutate(self, mutation_rate):
@@ -24,7 +24,7 @@ global best_individual_found
 best_individual_found = Individual()
 best_individual_found.steps = 200
 best_individual_found.velocity = 0
-best_individual_found.position = -0.5
+best_individual_found.position = -0.1
 
 def evaluate(individual):
     global best_individual_found
@@ -32,8 +32,8 @@ def evaluate(individual):
     mc.render_mode = None
     mc.initialize()
     best_velocity = 0
-    best_position = -0.5
-    while not any([mc.iter_count > 1000*5, mc.terminated]):
+    best_position = -0.1
+    while not any([mc.iter_count > 1000*10, mc.terminated]):
         mc.update()
 
         observation = mc.observation[0]+0.5, mc.observation[1]
@@ -43,7 +43,7 @@ def evaluate(individual):
             best_position = observation[0]
 
 
-    individual.steps = mc.iter_count // 5
+    individual.steps = mc.iter_count // 10
     individual.velocity = best_velocity
     individual.position = best_position
     individual.eval()
@@ -58,6 +58,7 @@ def evaluate(individual):
 
 # Selection of the mating pool, based on their fitness.
 def selection(population, elite_size):
+    selection_counter = 0
     total_fitness = sum([individual.evaluation for individual in population])
 
     random_number = random.uniform(0, total_fitness)
@@ -65,15 +66,21 @@ def selection(population, elite_size):
     running_total = 0
     selected_individuals = []
 
+    population_copy: list = population
+
     while len(selected_individuals) < len(population)*elite_size:
-        for individual in population:
+        selection_counter += 1
+        if selection_counter > 50:
+            print("Selection error")
+        for individual in population_copy:
             running_total += individual.evaluation
-            if running_total > random_number:
+            if running_total >= random_number:
                 selected_individuals.append(individual)
 
                 total_fitness -= individual.evaluation
                 random_number = random.uniform(0, total_fitness)
-
+                running_total = 0
+                population_copy.remove(individual)
                 if len(selected_individuals) >= len(population)*elite_size:
                     break
 
@@ -92,8 +99,8 @@ def clone(parent):
 
 population_history = []
 def main():
-    population_size = 200
-    generation_count = 200
+    population_size = 20
+    generation_count = 50
     mutation_rate = 0.1
     elite_size = int(0.7 * population_size)
 
@@ -110,7 +117,11 @@ def main():
         mating_pool = selection(population, elite_size)
         
         next_generation = []
+        generation_counter = 0
         while len(next_generation) < population_size:
+            generation_counter += 1
+            if generation_counter > 50:
+                print("Generation error")
             parent = random.sample(mating_pool, 1)[0]
             offspring1, offspring2 = clone(parent)
             offspring1.mutate(mutation_rate)
@@ -123,7 +134,8 @@ def main():
         for individual in population:
             evaluate(individual)
 
-    best_individual = max(population, key=lambda individual: individual.evaluation)
+    #best_individual = max(population, key=lambda individual: individual.evaluation)
+    best_individual = max([max(population, key=lambda individual: individual.evaluation) for population in population_history], key=lambda individual: individual.evaluation)
     print(best_individual.bitstring)
     print(best_individual.steps)
     print(best_individual.velocity)
@@ -135,7 +147,7 @@ def main():
 
         total_velocity = 0
         total_position = 0
-        for j in population_history[i*10:i*10+10]:
+        for j in population_history[i*10:i*10+10]: 
             for ind in j:
                 total_velocity += ind.velocity
                 total_position += ind.position
