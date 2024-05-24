@@ -70,8 +70,6 @@ def selection(population, elite_size):
 
     while len(selected_individuals) < len(population)*elite_size:
         selection_counter += 1
-        if selection_counter > 50:
-            print("Selection error")
         for individual in population_copy:
             running_total += individual.evaluation
             if running_total >= random_number:
@@ -120,8 +118,6 @@ def main():
         generation_counter = 0
         while len(next_generation) < population_size:
             generation_counter += 1
-            if generation_counter > 50:
-                print("Generation error")
             parent = random.sample(mating_pool, 1)[0]
             offspring1, offspring2 = clone(parent)
             offspring1.mutate(mutation_rate)
