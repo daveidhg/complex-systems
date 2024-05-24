@@ -5,7 +5,7 @@ import numpy as np
 class Individual:
     def __init__ (self, steps=None, velocity=None, position=None, bitstring=None):
         self.bitstring = bitstring if bitstring is not None else [random.choice([0, 1]) for _ in range(32)] 
-        self.steps = 200
+        self.steps = 1000
         self.velocity = velocity if velocity is not None else 0
         self.position = position if position is not None else -0.1
         self.evaluation = 0
@@ -16,13 +16,13 @@ class Individual:
                 self.bitstring[i] = 1 if self.bitstring[i] == 0 else 0
     
     def eval(self):
-        self.evaluation = self.position + self.velocity*4 + 200 * 2.71828**(-0.03 * self.steps)
+        self.evaluation = 1 + self.position + self.velocity*4 + 200 * 2.71828**(-0.03 * self.steps)
 
 # Running the mc on the individual, setting the amount of steps it took to reach the goal
 # 200 steps if truncated (stopped), less if terminated (finished)
 global best_individual_found
 best_individual_found = Individual()
-best_individual_found.steps = 200
+best_individual_found.steps = 1000
 best_individual_found.velocity = 0
 best_individual_found.position = -0.1
 
