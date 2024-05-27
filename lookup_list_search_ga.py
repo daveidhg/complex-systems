@@ -19,7 +19,7 @@ class Individual:
         self.evaluation = 1 + self.position + self.velocity*4 + 200 * 2.71828**(-0.03 * self.steps)
 
 # Running the mc on the individual, setting the amount of steps it took to reach the goal
-# 200 steps if truncated (stopped), less if terminated (finished)
+# 1000 steps if truncated (stopped), less if terminated (finished)
 global best_individual_found
 best_individual_found = Individual()
 best_individual_found.steps = 1000
@@ -93,12 +93,12 @@ def crossover(parent1, parent2):
     return Individual(bitstring=offspring1_bitstring), Individual(bitstring=offspring2_bitstring)
 
 def clone(parent):
-    return Individual(bitstring=parent.bitstring), Individual(bitstring=parent.bitstring)
+    return Individual(bitstring=parent.bitstring[:]), Individual(bitstring=parent.bitstring[:])
 
 population_history = []
 def main():
     population_size = 20
-    generation_count = 50
+    generation_count = 200
     mutation_rate = 0.1
     elite_size = int(0.7 * population_size)
 
