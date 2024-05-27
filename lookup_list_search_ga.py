@@ -16,7 +16,7 @@ class Individual:
                 self.bitstring[i] = 1 if self.bitstring[i] == 0 else 0
     
     def eval(self):
-        self.evaluation = 1 + self.position + self.velocity*4 + 200 * 2.71828**(-0.03 * self.steps)
+        self.evaluation = 1 + self.position + self.velocity*4 + 1000 * 2.71828**(-0.03 * self.steps)
 
 # Running the mc on the individual, setting the amount of steps it took to reach the goal
 # 1000 steps if truncated (stopped), less if terminated (finished)
@@ -54,7 +54,7 @@ def evaluate(individual):
         best_individual_found = individual
 
     if(individual.steps < 199):
-        print("Found solution")
+        print(f"Found solution: \nsteps: {individual.steps}, \nbitstring: {individual.bitstring} ")
 
 # Selection of the mating pool, based on their fitness.
 def selection(population, elite_size):
@@ -98,9 +98,9 @@ def clone(parent):
 population_history = []
 def main():
     population_size = 20
-    generation_count = 200
-    mutation_rate = 0.1
-    elite_size = int(0.7 * population_size)
+    generation_count = 300
+    mutation_rate = 0.03
+    elite_size = int(0.2 * population_size)
 
     population = [Individual() for _ in range(population_size)]
 
