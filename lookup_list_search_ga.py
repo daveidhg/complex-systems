@@ -48,8 +48,6 @@ def evaluate(individual):
     individual.position = best_position
     individual.eval()
 
-    # print("Steps: ", (mc.iter_count // 5)+1, " Finished? ", mc.terminated, "Velocity: ", round(best_velocity, 4), " Position: ", round(best_position,4))
-
     if(individual.steps < best_individual_found.steps):
         best_individual_found = individual
 
@@ -110,7 +108,7 @@ def main():
         for individual in population:
             evaluate(individual)
 
-        population_history.append(population)
+        population_history.append([ind for ind in population])
 
         mating_pool = selection(population, elite_size)
         
@@ -124,13 +122,12 @@ def main():
             offspring2.mutate(mutation_rate)
             next_generation.extend([offspring1, offspring2])
     
-        population = next_generation
+        population = next_generation[:population_size]
     
     else:
         for individual in population:
             evaluate(individual)
 
-    #best_individual = max(population, key=lambda individual: individual.evaluation)
     best_individual = max([max(population, key=lambda individual: individual.evaluation) for population in population_history], key=lambda individual: individual.evaluation)
     print(best_individual.bitstring)
     print(best_individual.steps)
@@ -138,6 +135,12 @@ def main():
     print(best_individual.position)
     print(best_individual.evaluation)
 
+    with open("log.txt", "w") as log_file:
+        for i, generation in enumerate(population_history):
+            log_file.write(f"Generation {i + 1}\n")
+            for j, individual in enumerate(generation):
+                log_file.write(f"  Individual {j + 1}: Steps = {individual.steps}, Evaluation = {individual.evaluation}, Bitstring = {individual.bitstring} \n")
+    
     for i in range(0, int(len(population_history)/10)):
         print("Generation ", i*10, " to ", i*10+10)
 
